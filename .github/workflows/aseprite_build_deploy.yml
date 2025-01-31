@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Weekly build
 
+env:
+  VSWHERE_PATH: 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe'
+  VSINSTALL_PATH: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise'
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -24,11 +28,15 @@ jobs:
     - name: Install Build Dependencies
       run: |
         pip install ninja
-        choco install cmake visualstudio2019buildtools
-        choco install visualstudio2019-workload-nativedesktop
+        choco install cmake visualstudio2022buildtools
+        choco install visualstudio2022-workload-nativedesktop
     
     - name: Setup MSVC
       uses: microsoft/setup-msbuild@v1.1
+    
+    - name: Configure VS Environment
+      run: |
+        & "${{ env.VSWHERE_PATH }}" -latest -property installationPath
     
     - name: Clone Skia Dependency
       run: |
@@ -46,11 +54,11 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -G "Visual Studio 16 2019" -A x64 \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DLAF_BACKEND=windows \
-          -DSKIA_DIR=${{ github.workspace }}/skia \
-          -DSKIA_LIBRARY_DIR=${{ github.workspace }}/skia/out/Release-x64 \
+        cmake -G "Visual Studio 17 2022" -A x64 `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DLAF_BACKEND=windows `
+          -DSKIA_DIR=${{ github.workspace }}/skia `
+          -DSKIA_LIBRARY_DIR=${{ github.workspace }}/skia/out/Release-x64 `
           ..
     
     - name: Build Aseprite
