@@ -21,11 +21,13 @@ jobs:
     steps:
     - name: Get latest Aseprite release
       id: version_info
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        data=$(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/latest)
-        LATEST_TAG=$(echo "$data" | jq -r '.tag_name')
-        DOWNLOAD_URL=$(echo "$data" | jq -r '.assets[].browser_download_url')
-        VERSION_INFO=$(echo "$data" | jq -r '.body')
+        response=$(curl -H "Authorization: token $GITHUB_TOKEN" -sL https://api.github.com/repos/aseprite/aseprite/releases/latest)
+        LATEST_TAG=$(echo "$response" | jq -r '.tag_name')
+        DOWNLOAD_URL=$(echo "$response" | jq -r '.assets[0].browser_download_url')
+        VERSION_INFO=$(echo "$response" | jq -r '.body' | sed 's/"/\\"/g')
         
         echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
         echo "download_url=${DOWNLOAD_URL}" >> $GITHUB_OUTPUT
