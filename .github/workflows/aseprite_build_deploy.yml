@@ -28,7 +28,7 @@ jobs:
         if: steps.skia-cache.outputs.cache-hit != 'true'
         run: |
           curl -o Skia-Windows-Release-X64.zip -L https://github.com/aseprite/skia/releases/download/m81-b607b32047/Skia-Windows-Release-X64.zip
-          unzip Skia-Windows-Release-X64.zip -d skia
+          Expand-Archive -Path Skia-Windows-Release-X64.zip -DestinationPath skia
       
       - name: Download Aseprite
         run: |
@@ -40,7 +40,13 @@ jobs:
       - name: Build Aseprite
         working-directory: aseprite/build
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Release -DLAF_BACKEND=skia -DSKIA_DIR=../../skia -DSKIA_LIBRARY_DIR=../../skia/out/Release-x64 -G Ninja ..
+          cmake -DCMAKE_BUILD_TYPE=Release `
+            -DLAF_BACKEND=skia `
+            -DSKIA_DIR=D:\a\aseprite_builder\aseprite_builder\skia `
+            -DSKIA_INCLUDE_DIRS=D:\a\aseprite_builder\aseprite_builder\skia\include `
+            -DSKIA_LIBRARY=D:\a\aseprite_builder\aseprite_builder\skia\out\Release-x64\skia.lib `
+            -DSKIA_LIBRARY_DIR=D:\a\aseprite_builder\aseprite_builder\skia\out\Release-x64 `
+            -G Ninja ..
           ninja aseprite
       
       - name: Package Aseprite
